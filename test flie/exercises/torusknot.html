@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>TorusKnot</title>
+    <script type="text/javascript" src="../libs/three.js"></script>
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
+      }
+    </style>
+  </head>
+  <body>
+    <script type="text/javascript">
+      var scene = new THREE.Scene();
+      var camera = new THREE.PerspectiveCamera(
+        75,
+        window.innerWidth/window.innerHeight,
+        0.1,
+        1000 );
+      camera.position.z = 35;
+
+      var renderer = new THREE.WebGLRenderer();
+      renderer.setSize( window.innerWidth, window.innerHeight );
+      document.body.appendChild( renderer.domElement );
+
+      var geometry = new THREE.TorusKnotGeometry( 10, 3, 300, 20, 4, 5 );
+      var mesh = new THREE.MeshNormalMaterial( {color: 0xAAFF66})
+      var knot = new THREE.Mesh( geometry, mesh );
+      scene.add( knot );
+
+      var animate = function () {
+        requestAnimationFrame( animate );
+        knot.rotation.x += 0.01;
+        knot.rotation.y += 0.01;
+        renderer.render( scene, camera );
+      };
+
+      animate();
+    </script>
+  </body>
+</htm>

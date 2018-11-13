@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <title>Ancient Temple</title>
+    <script type="text/javascript" src="../libs/three.js"></script>
+    <script type="text/javascript" src="../libs/stats.js"></script>
+    <script type="text/javascript" src="../libs/dat.gui.js"></script>
+    <style>
+        body {
+            /* This style will make the image fill window. */
+            margin: 0;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+
+<div id="picture">
+</div>
+
+<script type="text/javascript">
+
+/*
+  Start of code to help you with Question #4 on
+  the paper I just gave you.
+*/
+
+    var x0 = 2.0;
+    var y0 = 2.0;
+
+    var x1 = 4.0;
+    var y1 = 4.0;
+
+    var x2 = 3.0;
+    var y2 = 2.0;
+
+    var f = function( x0, y0, x1, y1, x2, y2 ) {
+
+        return function( x, y ) {
+            var numerator = (y1 - y0)
+                * x + (x0 - x1)
+                * y + (y0 * x1 - x0 * y1);
+
+            var denominator = (y1 - y0)
+                * x2 + (x0 - x1)
+                * y2 + (y0 * x1 - x0 * y1);
+
+            return numerator/denominator;
+        };
+    } // f( x0, y0, x1, y1, x2, y2 )
+
+    var g = f( x0, y0, x1, y1, x2, y2 );
+
+    var distance0 = g( 5, 5 );
+    var distance1 = g( 5, 6 );
+    var distance2 = g( 5, 4 );
+
+    console.log( "distance0 = " + distance0 );
+    console.log( "distance1 = " + distance1 );
+    console.log( "distance2 = " + distance2 );
+
+/* End of code for Question #4 */
+
+    function init() {
+
+        var scene = new THREE.Scene();
+
+        var camera = new THREE.PerspectiveCamera(
+            60,
+            window.innerWidth / window.innerHeight,
+            0.1,
+            1000);
+
+        // You might find it helpful to use an
+        // an orthographic camera instead of a
+        // perspective camera while developing
+        // and debugging your program.
+
+        /*
+        var camera = new THREE.OrthographicCamera(
+          -1.0,
+          +1.0,
+          +1.0,
+          -1.0,
+           0.1,
+           8.0
+        );
+        */
+
+        var renderer = new THREE.WebGLRenderer();
+
+        // TO-DO: Experiment with different colors for the space
+        // around the figure.
+        renderer.setClearColor(new THREE.Color(0xAABBEE, 1.0));
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.shadowMapEnabled = true;
+
+        // TO-DO: Experiment with different colors for the surface
+        // of the figure.
+        var material = new THREE.MeshPhongMaterial({color: 0xAABBBB});
+        material.side = THREE.DoubleSide;
+
+        // You might find it helpful to change "false" to "true"
+        // here---a view of the wireframe model will make it easier
+        // to see how the pieces of your temple connect while you
+        // are developing and debugging your program.
+        material.wireframe = false;
+
+        /*
+          Add all of the shapes that together
+          make a picture of an ancient temple
+          to this object.
+
+          Construct all geometry in a space
+          in which:
+            -1.0 <= x <= +1.0
+            -1.0 <= y <= +1.0
+            -1.0 <= z <= +1.0
+        */
+        var temple = new THREE.Object3D();
+
+        var base = new THREE.BoxGeometry( 1, 0.07, 1 );
+        var mesh = new THREE.Mesh( base, material );
+        temple.add(mesh);
+        var step0 = new THREE.BoxGeometry( 0.90, 0.12, 0.90 );
+        var mesh = new THREE.Mesh( step0, material );
+        temple.add(mesh);
+        var step1 = new THREE.BoxGeometry( 0.80, 0.17,0.80 );
+        var mesh = new THREE.Mesh( step1, material );
+        temple.add(mesh);
+
+        var columns = new THREE.CylinderGeometry( 0.04, 0.04, .5 );
+        var mesh = new THREE.Mesh( columns, material );
+        mesh.position.y = 0.2;
+        mesh.position.x = 0.33;
+        mesh.position.z = 0.33;
+        temple.add(mesh);
+
+
+        for( var i = 0; i < 6; i++){
+          for (var j = 0; j < 6; j++) {
+            if (i === 0 || j === 0 || i === 5 || j === 5) {
+              mesh = new THREE.Mesh( columns, material );
+              mesh.position.set(-0.3 + i * 0.12667,
+                0.2, -0.3 + j * 0.12667)
+              temple.add(mesh);
+            }
+          }
+        }
+
+        var shape = new THREE.Shape();
+        shape.moveTo(0,0);
+        shape.lineTo(0.8,0);
+        shape.lineTo(0.4,0.12);
+        shape.lineTo(0.4,0.12);
+        shape.lineTo(0,0);
+
+        var extrudeSettings = {
+          steps: 1,
+          amount: .8,
+          bevelEnabled: false,
+        };
+        var geometry = new THREE.ExtrudeGeometry( shape, extrudeSettings );
+        var mesh = new THREE.Mesh( geometry, material );
+        mesh.position.x = -.4;
+        mesh.position.z = -.4;
+        mesh.position.y = .45;
+        temple.add(mesh);
+
+        scene.add( temple );
+
+
+
+        camera.position.x = 0;
+        camera.position.y = 0.8;
+        camera.position.z = 1.6;
+        camera.lookAt( new THREE.Vector3(0,0,0));
+
+        // You might prefer to places lights
+        // in different positions.
+
+        var spotLightA = new THREE.SpotLight(0xFFFFFF);
+        spotLightA.position.set( 4, 6, 8);
+        spotLightA.castShadow = true;
+        spotLightA.exponent = 1;
+        spotLightA.angle = Math.PI/3;
+        spotLightA.target = temple;
+        scene.add(spotLightA);
+
+        var spotLightB = new THREE.SpotLight(0xFFFFFF);
+        spotLightB.position.set( -2, 2, 12);
+        spotLightB.castShadow = true;
+        spotLightB.exponent = 1;
+        spotLightB.angle = Math.PI/3;
+        spotLightB.target = temple;
+        scene.add(spotLightB);
+
+        document.getElementById("picture")
+            .appendChild(renderer.domElement);
+
+        var render = function() {
+
+            temple.rotation.y += 0.01;
+
+            requestAnimationFrame( render );
+            renderer.render(scene, camera);
+        }; // render()
+
+        render();
+    } // init()
+
+    window.onload = init;
+</script>
+</body>
+</html>

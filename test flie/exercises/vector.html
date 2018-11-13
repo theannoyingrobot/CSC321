@@ -1,0 +1,43 @@
+<html>
+  <head>
+    <title>Vectors</title>
+    <script type="text/javascript" src="../libs/three.js"></script>
+    <script type="text/javascript" src="../libs/stats.js"></script>
+    <script type="text/javascript" src="../libs/dat.gui.js"></script>
+    <style>
+      body{
+        margin: 0;
+        overflow: hidden;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="picture">
+
+    </div>
+    <script type="text/javascript">
+
+    var p0 = new THREE.Vector3( 2.0, 2.0, 0);
+    console.log(p0);
+    var p1 = new THREE.Vector3( 4.0, 4.0, 0 );
+    console.log(p1);
+    var u = new THREE.Vector3();
+    var u = p1.sub(p0);
+    console.log(u);
+    var v = new THREE.Vector3();
+    var m = new THREE.Matrix3();
+    m.set(0, -1, 0,
+          1,  0, 0,
+          0,  0, 1);
+    v.applyMatrix3(m);
+    console.log(v);
+
+    function F(p) {
+      return v.multiply(subVectors(p, p0));
+    }
+    function G(p, p2){
+      return F(p).divide(F(p2));
+    }
+    </script>
+  </body>
+</html>

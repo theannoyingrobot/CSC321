@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <title>Interplolation</title>
+    <script type="text/javascript" src="../libs/three.js"></script>
+    <script type="text/javascript" src="../libs/stats.js"></script>
+    <script type="text/javascript" src="../libs/dat.gui.js"></script>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Here is where the picture will appear. -->
+<div id="picture">
+</div>
+
+<!-- Here is our JavaScript code. -->
+<script type="text/javascript">
+
+    // TO-DO: You may change the number, size,
+    // and spacing of the spheres that this program
+    // will draw.
+    var NUMBER_OF_SPHERES = 6;
+    var RADIUS = 4;
+    var DISTANCE = 8;
+
+    // After the page has been loaded, this function runs.
+    // The code that draws the picture by calling threejs functions
+    // goes here.
+    function init() {
+
+        // Create a scene that will contain geometry, lights, and camera.
+        // A "scene" is a scene graph---a tree with nodes.
+        var scene = new THREE.Scene();
+
+        // Create a camera.
+        //   1st parameter: field of view
+        //   2nd parameter: aspect ratio
+        //   3rd parameter: distance to nearest visible part of world
+        //   4th parameter: distance to most distant visible part of world
+        // Think of a pyramid whose apex is at the camera. The camera will "see"
+        // objects that lie within a portion of this pyramid. The shape of visible
+        // part of the world is a truncated pyramid. The 3rd parameter
+        // ("near") determines how much of the top is removed from the pyramid
+        // to define the visible part of the world.
+        //
+        // 0.1 is a recommended value for the "near" parameter and should
+        // not be changed.
+        //
+        // 1000 is a good value for the "far" parameter and should
+        // not be changed.
+        //
+        // TO-DO: Experiment with different values for the field of view.
+        var camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+        // Create a renderer. Set its size and the color used to paint
+        // the empty parts of the scene..
+        var renderer = new THREE.WebGLRenderer();
+
+        // TO-DO: What color would you like to see where there
+        // is no geometry? Experiment with different colors for
+        // the empty parts of your world.
+        renderer.setClearColor(new THREE.Color(0xFFCC88, 1.0));
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.shadowMapEnabled = true;
+
+        // Create the ground.
+        // TO-DO: Experiment with different sizes and colors for
+        // the ground.
+        var planeGeometry = new THREE.PlaneGeometry(44, 44);
+        var planeMaterial = new THREE.MeshLambertMaterial({color: 0xAAFFCC});
+        var plane = new THREE.Mesh(planeGeometry, planeMaterial);
+        plane.receiveShadow = true;
+
+        // Position the plane.
+        // TO-DO: Experiment with different values of z to
+        // move the plane closer to the camera or farther
+        // away from the camera.
+        plane.position.x = 0;
+        plane.position.y = 0;
+        plane.position.z = -8;
+
+        // Add the plane to the scene.
+        scene.add(plane);
+
+        // The first parameter of this constructcor determines
+        // the size of the sphere.
+        //
+        // The second and third parameters determine how
+        // closely the drawn figure will approximate a sphere.
+        var sphereGeometry = new THREE.SphereGeometry(RADIUS, 36, 36);
+        var sphereMaterials = [];
+        // TO-DO: Experiment with different colors. You might also
+        // try experimenting with different numbers of colors.
+        //   MeshPhongMaterial is shiny
+        //   MeshLambertMaterial is dull
+        sphereMaterials.push( new THREE.MeshPhongMaterial({color: 0xFFEE44}) );
+        sphereMaterials.push( new THREE.MeshLambertMaterial({color: 0xFF44EE}) );
+
+        var spheres = [];
+        for( var i = 0; i < NUMBER_OF_SPHERES; i++ ) {
+            spheres[i] = new THREE.Mesh(sphereGeometry, sphereMaterials[i % sphereMaterials.length]);
+        } // for
+
+        // Position the spheres.
+        for( i = 0; i < NUMBER_OF_SPHERES; i++ ) {
+            var angle = (i / NUMBER_OF_SPHERES) * (2 * Math.PI);
+            spheres[i].position.x = DISTANCE * Math.cos( angle );
+            spheres[i].position.y = DISTANCE * Math.sin( angle );
+            spheres[i].position.z = RADIUS + (i % 2) * RADIUS;
+            spheres[i].castShadow = true;
+        } // for
+
+        // Add each sphere to the scene.
+        for( i = 0; i < NUMBER_OF_SPHERES; i++ ) {
+            scene.add(spheres[i]);
+        } // for
+
+        // Position and point the camera.
+        // TO-DO: Experiment with different positions for
+        // the camera.
+        camera.position.x = 0;
+        camera.position.y = 0;
+        camera.position.z = 36;
+        camera.lookAt( new THREE.Vector3(0,0,0));
+
+        // Add a spotlight for the shadows.
+        //   In addition to spotlights, threejs also
+        //   has ambient lights, point lights, direction lights,
+        //   (and also some other, special kinds of lights).
+        //
+        // TO-DO: Experiment with different kinds and numbers
+        // of lights.
+        var spotLight = new THREE.SpotLight(0xFFFFFF);
+        spotLight.position.set( 8, 12, 20);
+        spotLight.castShadow = true;
+        // exponent determines how rapidly brightness diminishes
+        // with distance (smaller value => less attenuation)
+        spotLight.exponent = 1;
+        // angle determines how wide the cone of light is
+        // TO-DO: What happens when you change this angle?
+        spotLight.angle = Math.PI/4;
+        // aim the light by specifying an object
+        spotLight.target = plane;
+        scene.add(spotLight);
+
+        // Add the output of the renderer to the HTML div element.
+        document.getElementById("picture").appendChild(renderer.domElement);
+
+        renderer.render(scene, camera);
+    } // init()
+
+    // Call init() after the page has been loaded. Init() will draw the picture.
+    window.onload = init;
+</script>
+</body>
+</html>
